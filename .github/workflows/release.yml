@@ -1,0 +1,16 @@
+name: release
+
+on:
+  schedule:
+    - cron: "10 10 * * *"
+
+jobs:
+  macos-aarch64:
+    name: macos-aarch64
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        run: git clone https://dawn.googlesource.com/dawn dawn
+      - name: Install Dependencies
+        run: python tools/fetch_dawn_dependencies.py
+        working-directory: dawn
