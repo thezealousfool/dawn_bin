@@ -25,6 +25,7 @@ jobs:
           unzip ninja-linux.zip
           sudo cp ninja /usr/bin
           rm ninja-linux.zip
+          sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev mesa-common-dev libx11-xcb-dev pkg-config
         working-directory: dawn
       - name: Building - Debug
         run: |
