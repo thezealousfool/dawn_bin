@@ -9,8 +9,8 @@ on:
     - cron: "10 10 * * *"
 
 jobs:
-  linux-aarch64:
-    name: linux-aarch64
+  linux-x86_64:
+    name: linux-x86_64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,6 +21,10 @@ jobs:
         run: |
           python tools/fetch_dawn_dependencies.py
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          wget https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
+          unzip ninja-linux.zip
+          sudo cp ninja /usr/bin
+          rm ninja-linux.zip
         working-directory: dawn
       - name: Building - Debug
         run: |
