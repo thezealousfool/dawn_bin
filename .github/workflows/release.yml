@@ -19,7 +19,7 @@ jobs:
           mkdir -p dawn/build-debug dawn/build-release dist-debug dist-release
       - name: Install Dependencies
         run: |
-          python tools/fetch_dawn_dependencies.py
+          python3 tools/fetch_dawn_dependencies.py
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
           wget https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
           unzip ninja-linux.zip
