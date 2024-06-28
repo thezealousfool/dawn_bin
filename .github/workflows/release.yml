@@ -111,7 +111,7 @@ jobs:
           name: x86_64-apple-darwin-debug
       - name: Building - Release
         run: |
-          cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=OFF -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF
+          cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=OFF -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF
           cmake --build . --config Release
           cmake --install . --config Release
         working-directory: dawn/build-release
