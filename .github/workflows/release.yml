@@ -6,12 +6,34 @@ on:
     - cron: "10 10 * * *"
 
 jobs:
-  macos-aarch64:
-    name: macos-aarch64
-    runs-on: macos-latest
+  linux-aarch64:
+    name: linux-aarch64
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        run: git clone https://dawn.googlesource.com/dawn dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir -p dawn/build-debug dawn/build-release dist-debug dist-release
       - name: Install Dependencies
-        run: python tools/fetch_dawn_dependencies.py
+        run: |
+          python tools/fetch_dawn_dependencies.py
+          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
         working-directory: dawn
+      - name: Building - Debug
+        run: |
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../../dist-debug -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=OFF -DDAWN_USE_GLFW=ON -DGLFW_BUILD_WAYLAND=ON -DGLFW_BUILD_X11=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF
+          ninja
+          ninja install
+        working-directory: dawn/build-debug
+        env:
+          CC: clang
+          CXX: clang++
+      - name: Building - Release
+        run: |
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=OFF -DDAWN_USE_GLFW=ON -DGLFW_BUILD_WAYLAND=ON -DGLFW_BUILD_X11=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF
+          ninja
+          ninja install
+        working-directory: dawn/build-release
+        env:
+          CC: clang
+          CXX: clang++
