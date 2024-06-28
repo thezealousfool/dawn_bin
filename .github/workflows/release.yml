@@ -33,9 +33,19 @@ jobs:
           ninja
           ninja install
         working-directory: dawn/build-debug
+      - name: Upload - Debug
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist-debug
+          name: x86_64-unknown-linux-gnu-debug
       - name: Building - Release
         run: |
           cmake .. -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=OFF -DDAWN_USE_GLFW=ON -DGLFW_BUILD_WAYLAND=ON -DGLFW_BUILD_X11=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF
           ninja
           ninja install
         working-directory: dawn/build-release
+      - name: Upload - Release
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist-release
+          name: x86_64-unknown-linux-gnu-release
