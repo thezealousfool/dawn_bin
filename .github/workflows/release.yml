@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist
+          name: dist-linux-x86_64
 
   macos-aarch64:
     name: macos-aarch64
@@ -85,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist
+          name: dist-macos-aarch64
 
 
   macos-x86_64:
@@ -122,7 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist
+          name: dist-macos-x86_64
 
 
   publish:
@@ -134,15 +134,24 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
-      - uses: actions/checkout@v4
       - name: Set Version
         run: |
           echo "RELEASE_VERSION=$(date '+%Y%m%d')" >> $GITHUB_ENV
         shell: bash
-      - name: Download assets
+      - name: Download assets - linux-x86_64
         uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-linux-x86_64
+          path: dist
+      - name: Download assets - macos-aarch64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-aarch64
+          path: dist
+      - name: Download assets - macos-x86_64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-x86_64
           path: dist
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
