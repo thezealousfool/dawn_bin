@@ -92,6 +92,7 @@ jobs:
           dawn_complete_static_libs=true
           is_debug=false
           is_official_build=true
+          chrome_pgo_phase=0
 
           dawn_use_wayland=true
           dawn_use_x11=true
