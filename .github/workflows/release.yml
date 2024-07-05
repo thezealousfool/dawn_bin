@@ -50,6 +50,7 @@ jobs:
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           is_debug=true
+          target_cpu="x64"
 
           dawn_use_wayland=true
           dawn_use_x11=true
@@ -69,7 +70,7 @@ jobs:
           is_clang=true
           use_custom_libcxx=false
           EOF
-          gn gen build-debug
+          gn gen build-debug --clang_base_path="$LLVM_PATH"
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
@@ -93,6 +94,7 @@ jobs:
           is_debug=false
           is_official_build=true
           chrome_pgo_phase=0
+          target_cpu="x64"
 
           dawn_use_wayland=true
           dawn_use_x11=true
@@ -112,7 +114,7 @@ jobs:
           is_clang=true
           use_custom_libcxx=false
           EOF
-          gn gen build-release
+          gn gen build-release --clang_base_path="$LLVM_PATH"
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
@@ -141,118 +143,436 @@ jobs:
           path: dist
           name: dist-linux-x86_64
 
-  # macos-aarch64:
-  #   name: macos-aarch64
-  #   runs-on: macos-latest
-  #   steps:
-  #     - name: Checkout
-  #       run: |
-  #         git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-  #         mkdir -p dawn/build-debug dawn/build-release dist-debug dist-release
-  #     - name: Install Dependencies
-  #       run: |
-  #         python3 tools/fetch_dawn_dependencies.py
-  #       working-directory: dawn
-  #     - name: Building - Debug
-  #       run: |
-  #         cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX=../../dist-debug -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=ON -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
-  #         cmake --build . --config Debug
-  #         cmake --install . --config Debug
-  #         cp src/dawn/common/Debug/libdawn_common.a ../../dist-debug/lib
-  #       working-directory: dawn/build-debug
-  #     - name: Building - Release
-  #       run: |
-  #         cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=ON -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
-  #         cmake --build . --config Release
-  #         cmake --install . --config Release
-  #         cp src/dawn/common/Release/libdawn_common.a ../../dist-release/lib
-  #       working-directory: dawn/build-release
-  #     - name: Create archives
-  #       run: |
-  #         brew install p7zip
-  #         mkdir dist
-  #         7z a dist/macos-aarch64-debug.zip $(pwd)/dist-debug/*
-  #         7z a dist/macos-aarch64-release.zip $(pwd)/dist-release/*
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         path: dist
-  #         name: dist-macos-aarch64
+  linux-aarch64:
+    name: linux-aarch64
+    runs-on: ubuntu-latest
+    steps:
+      - name: System Dependencies
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
+      - name: clang
+        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
+        with:
+          version: "14"
 
-  # macos-x86_64:
-  #   name: macos-x86_64
-  #   runs-on: macos-latest
-  #   steps:
-  #     - name: Checkout
-  #       run: |
-  #         git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-  #         mkdir -p dawn/build-debug dawn/build-release dist-debug dist-release
-  #     - name: Install Dependencies
-  #       run: |
-  #         python3 tools/fetch_dawn_dependencies.py
-  #       working-directory: dawn
-  #     - name: Building - Debug
-  #       run: |
-  #         cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX=../../dist-debug -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=ON -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
-  #         cmake --build . --config Debug
-  #         cmake --install . --config Debug
-  #         cp src/dawn/common/Debug/libdawn_common.a ../../dist-debug/lib
-  #       working-directory: dawn/build-debug
-  #     - name: Building - Release
-  #       run: |
-  #         cmake .. -GXcode -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX=../../dist-release -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_SAMPLES=OFF -DGLFW_INSTALL=ON -DDAWN_USE_GLFW=ON -DGLFW_LIBRARY_TYPE=STATIC -DTINT_BUILD_TESTS=OFF -DTINT_ENABLE_INSTALL=OFF -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
-  #         cmake --build . --config Release
-  #         cmake --install . --config Release
-  #         cp src/dawn/common/Release/libdawn_common.a ../../dist-release/lib
-  #       working-directory: dawn/build-release
-  #     - name: Create archives
-  #       run: |
-  #         brew install p7zip
-  #         mkdir dist
-  #         7z a dist/macos-x86_64-debug.zip $(pwd)/dist-debug/*
-  #         7z a dist/macos-x86_64-release.zip $(pwd)/dist-release/*
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         path: dist
-  #         name: dist-macos-x86_64
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
 
-  # publish:
-  #   name: Publish Github release
-  #   needs:
-  #     - linux-x86_64
-  #     - macos-aarch64
-  #     - macos-x86_64
-  #   runs-on: ubuntu-latest
-  #   if: success()
-  #   steps:
-  #     - name: Set Version
-  #       run: |
-  #         echo "RELEASE_VERSION=$(date '+%Y%m%d')" >> $GITHUB_ENV
-  #       shell: bash
-  #     - name: Download assets - linux-x86_64
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: dist-linux-x86_64
-  #         path: dist
-  #     - name: Download assets - macos-aarch64
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: dist-macos-aarch64
-  #         path: dist
-  #     - name: Download assets - macos-x86_64
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: dist-macos-x86_64
-  #         path: dist
-  #     - name: Upload Release Assets
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         tag_name: ${{ env.RELEASE_VERSION }}
-  #         name: ${{ env.RELEASE_VERSION }}
-  #         files: |
-  #           dist/*.zip
-  #         draft: false
-  #         prerelease: false
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-debug dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-debug build-release
+
+      - name: Building - Debug
+        run: |
+          build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+          cat << EOF >> build-debug/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=true
+          target_cpu="arm64"
+
+          dawn_use_wayland=true
+          dawn_use_x11=true
+
+          dawn_enable_vulkan=true
+          dawn_enable_null=false
+          dawn_enable_metal=false
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-debug --clang_base_path="$LLVM_PATH"
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
+          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
+          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
+          cp -r build-debug/gen/include ../dist-debug
+          cp -r build-debug/gen/lib ../dist-debug
+          rm -rf ../dist-debug/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Building - Release
+        run: |
+          cat << EOF >> build-release/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=false
+          is_official_build=true
+          chrome_pgo_phase=0
+          target_cpu="arm64"
+
+          dawn_use_wayland=true
+          dawn_use_x11=true
+
+          dawn_enable_vulkan=true
+          dawn_enable_null=false
+          dawn_enable_metal=false
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-release --clang_base_path="$LLVM_PATH"
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
+          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
+          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
+          cp -r build-release/gen/include ../dist-release
+          cp -r build-release/gen/lib ../dist-release
+          rm -rf ../dist-release/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Create archives
+        run: |
+          sudo apt install p7zip-full
+          mkdir dist
+          7z a dist/linux-aarch64-debug.zip $(pwd)/dist-debug/*
+          7z a dist/linux-aarch64-release.zip $(pwd)/dist-release/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-linux-aarch64
+
+  macos-aarch64:
+    name: macos-aarch64
+    runs-on: macos-latest
+    steps:
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-debug dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-debug build-release
+
+      - name: Building - Debug
+        run: |
+          cat << EOF >> build-debug/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=true
+          use_system_xcode=true
+          mac_deployment_target="12.0"
+          mac_min_system_version="12.0"
+          mac_sdk_min="12.0"
+          target_cpu="arm64"
+
+          dawn_enable_vulkan=false
+          dawn_enable_null=false
+          dawn_enable_metal=true
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_glsl_writer=false
+          tint_build_glsl_validator=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-debug
+          find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
+          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
+          ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
+          cp -r build-debug/gen/include ../dist-debug
+          cp -r build-debug/gen/lib ../dist-debug
+          rm -rf ../dist-debug/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Building - Release
+        run: |
+          cat << EOF >> build-release/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=false
+          is_official_build=true
+          chrome_pgo_phase=0
+          use_system_xcode=true
+          mac_deployment_target="12.0"
+          mac_min_system_version="12.0"
+          mac_sdk_min="12.0"
+          target_cpu="arm64"
+
+          dawn_enable_vulkan=false
+          dawn_enable_null=false
+          dawn_enable_metal=true
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_glsl_writer=false
+          tint_build_glsl_validator=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-release
+          find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
+          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
+          ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
+          cp -r build-release/gen/include ../dist-release
+          cp -r build-release/gen/lib ../dist-release
+          rm -rf ../dist-release/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Create archives
+        run: |
+          sudo apt install p7zip-full
+          mkdir dist
+          7z a dist/macos-aarch64-debug.zip $(pwd)/dist-debug/*
+          7z a dist/macos-aarch64-release.zip $(pwd)/dist-release/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-macos-aarch64
+
+  macos-x86_64:
+    name: macos-x86_64
+    runs-on: macos-latest
+    steps:
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-debug dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-debug build-release
+
+      - name: Building - Debug
+        run: |
+          cat << EOF >> build-debug/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=true
+          use_system_xcode=true
+          mac_deployment_target="12.0"
+          mac_min_system_version="12.0"
+          mac_sdk_min="12.0"
+          target_cpu="x64"
+
+          dawn_enable_vulkan=false
+          dawn_enable_null=false
+          dawn_enable_metal=true
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_glsl_writer=false
+          tint_build_glsl_validator=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-debug
+          find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
+          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
+          ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
+          cp -r build-debug/gen/include ../dist-debug
+          cp -r build-debug/gen/lib ../dist-debug
+          rm -rf ../dist-debug/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Building - Release
+        run: |
+          cat << EOF >> build-release/args.gn
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
+          is_debug=false
+          is_official_build=true
+          chrome_pgo_phase=0
+          use_system_xcode=true
+          mac_deployment_target="12.0"
+          mac_min_system_version="12.0"
+          mac_sdk_min="12.0"
+          target_cpu="x64"
+
+          dawn_enable_vulkan=false
+          dawn_enable_null=false
+          dawn_enable_metal=true
+          dawn_use_swiftshader=false
+          dawn_tests_use_angle=false
+
+          tint_build_benchmarks=false
+          tint_build_unittests=false
+          tint_build_cmds=false
+          tint_build_glsl_writer=false
+          tint_build_glsl_validator=false
+          tint_build_hlsl_writer=false
+          tint_build_ir_binary=false
+
+          is_clang=true
+          use_custom_libcxx=false
+          EOF
+          gn gen build-release
+          find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
+          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
+          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
+          ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
+          cp -r build-release/gen/include ../dist-release
+          cp -r build-release/gen/lib ../dist-release
+          rm -rf ../dist-release/include/dawn/wire
+        shell: bash
+        working-directory: dawn
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+
+      - name: Create archives
+        run: |
+          sudo apt install p7zip-full
+          mkdir dist
+          7z a dist/macos-x86_64-debug.zip $(pwd)/dist-debug/*
+          7z a dist/macos-x86_64-release.zip $(pwd)/dist-release/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-macos-x86_64
+
+  publish:
+    name: Publish Github release
+    needs:
+      - linux-x86_64
+      - linux-aarch64
+      - macos-aarch64
+      - macos-x86_64
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Set Version
+        run: |
+          echo "RELEASE_VERSION=$(date '+%Y%m%d')" >> $GITHUB_ENV
+        shell: bash
+      - name: Download assets - linux-x86_64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-linux-x86_64
+          path: dist
+      - name: Download assets - linux-aarch64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-linux-aarch64
+          path: dist
+      - name: Download assets - macos-aarch64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-aarch64
+          path: dist
+      - name: Download assets - macos-x86_64
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-x86_64
+          path: dist
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: Dawn Release ${{ env.RELEASE_VERSION }}
+          files: |
+            dist/*.zip
+          draft: false
+          prerelease: false
