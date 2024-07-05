@@ -25,7 +25,9 @@ jobs:
         uses: newkdev/setup-depot-tools@v1.0.1
 
       - name: clang
-        uses: KyleMayes/install-llvm-action@v2
+        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
+        with:
+          version: "14"
 
       - name: ninja
         uses: seanmiddleditch/gha-setup-ninja@master
