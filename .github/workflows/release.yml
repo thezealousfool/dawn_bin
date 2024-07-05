@@ -48,6 +48,7 @@ jobs:
 
       - name: Building - Debug
         run: |
+          echo $(pwd)/build-debug/
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
@@ -78,7 +79,7 @@ jobs:
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
           ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
-          ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
+          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include dist-debug 
           cp -r build-debug/gen/lib dist-debug 
           rm -rf dist-debug/include/dawn/wire
@@ -90,6 +91,7 @@ jobs:
 
       - name: Building - Release
         run: |
+          echo $(pwd)/build-release/
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
@@ -121,7 +123,7 @@ jobs:
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
           ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
-          ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
+          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include dist-release 
           cp -r build-release/gen/lib dist-release 
           rm -rf dist-release/include/dawn/wire
