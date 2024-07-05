@@ -21,9 +21,6 @@ jobs:
           sudo apt update
           sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
-      - name: depot_tools
-        uses: newkdev/setup-depot-tools@v1.0.1
-
       - name: clang
         uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
         with:
@@ -35,20 +32,20 @@ jobs:
       - name: Set up sccache
         uses: mozilla-actions/sccache-action@v0.0.3
 
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
       - name: dawn
         run: |
           git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-          mkdir -p dawn/build-debug dawn/build-release dist-debug dist-release
+          mkdir dist-debug dist-release
           cd dawn
-          cp ./scripts/standalone.gclient .gclient
+          cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
-        shell: bash
-        env:
-          DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+          mkdir build-debug build-release
 
       - name: Building - Debug
         run: |
-          echo $(pwd)/build-debug/
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
@@ -80,18 +77,16 @@ jobs:
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
           ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
-          cp -r build-debug/gen/include dist-debug 
-          cp -r build-debug/gen/lib dist-debug 
-          rm -rf dist-debug/include/dawn/wire
+          cp -r build-debug/gen/include ../dist-debug
+          cp -r build-debug/gen/lib ../dist-debug
+          rm -rf ../dist-debug/include/dawn/wire
         shell: bash
         working-directory: dawn
         env:
           SCCACHE_GHA_ENABLED: "true"
-          DEPOT_TOOLS_WIN_TOOLCHAIN: 0
 
       - name: Building - Release
         run: |
-          echo $(pwd)/build-release/
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
@@ -124,14 +119,13 @@ jobs:
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
           ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
-          cp -r build-release/gen/include dist-release 
-          cp -r build-release/gen/lib dist-release 
-          rm -rf dist-release/include/dawn/wire
+          cp -r build-release/gen/include ../dist-release
+          cp -r build-release/gen/lib ../dist-release
+          rm -rf ../dist-release/include/dawn/wire
         shell: bash
         working-directory: dawn
         env:
           SCCACHE_GHA_ENABLED: "true"
-          DEPOT_TOOLS_WIN_TOOLCHAIN: 0
 
       - name: Create archives
         run: |
