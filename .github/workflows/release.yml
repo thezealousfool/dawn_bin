@@ -69,6 +69,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-debug --clang_base_path="$LLVM_PATH"
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
@@ -76,7 +77,6 @@ jobs:
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
@@ -157,6 +157,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-release --clang_base_path="$LLVM_PATH"
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
@@ -164,7 +165,6 @@ jobs:
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
@@ -244,6 +244,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-debug --clang_base_path="$LLVM_PATH"
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
@@ -251,7 +252,6 @@ jobs:
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
@@ -333,6 +333,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-release --clang_base_path="$LLVM_PATH"
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
@@ -340,7 +341,6 @@ jobs:
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
@@ -412,6 +412,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-debug
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
@@ -420,7 +421,6 @@ jobs:
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
@@ -432,7 +432,6 @@ jobs:
 
       - name: Create archive
         run: |
-          brew install p7zip
           mkdir dist
           7z a dist/macos-aarch64-debug.zip $(pwd)/dist-debug/*
 
@@ -494,6 +493,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-release
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
@@ -502,7 +502,6 @@ jobs:
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
@@ -514,7 +513,6 @@ jobs:
 
       - name: Create archive
         run: |
-          brew install p7zip
           mkdir dist
           7z a dist/macos-aarch64-release.zip $(pwd)/dist-release/*
 
@@ -574,6 +572,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-debug
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
@@ -582,7 +581,6 @@ jobs:
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
@@ -594,7 +592,6 @@ jobs:
 
       - name: Create archive
         run: |
-          brew install p7zip
           mkdir dist
           7z a dist/macos-x86_64-debug.zip $(pwd)/dist-debug/*
 
@@ -656,6 +653,7 @@ jobs:
 
           is_clang=true
           use_custom_libcxx=false
+          use_allocator_shim=false
           EOF
           gn gen build-release
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
@@ -664,7 +662,6 @@ jobs:
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/obj/third_party/partition_alloc/src/partition_alloc/raw_ptr/* | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
@@ -676,7 +673,6 @@ jobs:
 
       - name: Create archive
         run: |
-          brew install p7zip
           mkdir dist
           7z a dist/macos-x86_64-release.zip $(pwd)/dist-release/*
 
