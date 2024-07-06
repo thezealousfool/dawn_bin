@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  linux-x86_64:
-    name: linux-x86_64
+  linux-x86_64-debug:
+    name: linux-x86_64-debug
     runs-on: ubuntu-latest
     steps:
       - name: System Dependencies
@@ -38,13 +38,13 @@ jobs:
       - name: dawn
         run: |
           git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-          mkdir dist-debug dist-release
+          mkdir dist-debug
           cd dawn
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
-          mkdir build-debug build-release
+          mkdir build-debug
 
-      - name: Building - Debug
+      - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
@@ -86,7 +86,51 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Building - Release
+      - name: Create archive
+        run: |
+          sudo apt install p7zip-full
+          mkdir dist
+          7z a dist/linux-x86_64-debug.zip $(pwd)/dist-debug/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-linux-x86_64-debug
+
+  linux-x86_64-release:
+    name: linux-x86_64-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: System Dependencies
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
+
+      - name: clang
+        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
+        with:
+          version: "14"
+
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-release
+
+      - name: Building
         run: |
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
@@ -130,21 +174,20 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Create archives
+      - name: Create archive
         run: |
           sudo apt install p7zip-full
           mkdir dist
-          7z a dist/linux-x86_64-debug.zip $(pwd)/dist-debug/*
           7z a dist/linux-x86_64-release.zip $(pwd)/dist-release/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist-linux-x86_64
+          name: dist-linux-x86_64-release
 
-  linux-aarch64:
-    name: linux-aarch64
+  linux-aarch64-debug:
+    name: linux-aarch64-debug
     runs-on: ubuntu-latest
     steps:
       - name: System Dependencies
@@ -169,15 +212,15 @@ jobs:
       - name: dawn
         run: |
           git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-          mkdir dist-debug dist-release
+          mkdir dist-debug
           cd dawn
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
-          mkdir build-debug build-release
-
-      - name: Building - Debug
-        run: |
           build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+          mkdir build-debug
+
+      - name: Building
+        run: |
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
@@ -218,7 +261,52 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Building - Release
+      - name: Create archive
+        run: |
+          sudo apt install p7zip-full
+          mkdir dist
+          7z a dist/linux-aarch64-debug.zip $(pwd)/dist-debug/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-linux-aarch64-debug
+
+  linux-aarch64-release:
+    name: linux-aarch64-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: System Dependencies
+        run: |
+          sudo apt update
+          sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
+
+      - name: clang
+        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
+        with:
+          version: "14"
+
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+          mkdir build-release
+
+      - name: Building
         run: |
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
@@ -262,21 +350,20 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Create archives
+      - name: Create archive
         run: |
           sudo apt install p7zip-full
           mkdir dist
-          7z a dist/linux-aarch64-debug.zip $(pwd)/dist-debug/*
           7z a dist/linux-aarch64-release.zip $(pwd)/dist-release/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist-linux-aarch64
+          name: dist-linux-aarch64-release
 
-  macos-aarch64:
-    name: macos-aarch64
+  macos-aarch64-debug:
+    name: macos-aarch64-debug
     runs-on: macos-latest
     steps:
       - name: ninja
@@ -291,13 +378,13 @@ jobs:
       - name: dawn
         run: |
           git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-          mkdir dist-debug dist-release
+          mkdir dist-debug
           cd dawn
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
-          mkdir build-debug build-release
+          mkdir build-debug
 
-      - name: Building - Debug
+      - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
@@ -343,7 +430,41 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Building - Release
+      - name: Create archive
+        run: |
+          brew install p7zip
+          mkdir dist
+          7z a dist/macos-aarch64-debug.zip $(pwd)/dist-debug/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-macos-aarch64-debug
+
+  macos-aarch64-release:
+    name: macos-aarch64-release
+    runs-on: macos-latest
+    steps:
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-release
+
+      - name: Building
         run: |
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
@@ -391,21 +512,20 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Create archives
+      - name: Create archive
         run: |
-          sudo apt install p7zip-full
+          brew install p7zip
           mkdir dist
-          7z a dist/macos-aarch64-debug.zip $(pwd)/dist-debug/*
           7z a dist/macos-aarch64-release.zip $(pwd)/dist-release/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist-macos-aarch64
+          name: dist-macos-aarch64-release
 
-  macos-x86_64:
-    name: macos-x86_64
+  macos-x86_64-debug:
+    name: macos-x86_64-debug
     runs-on: macos-latest
     steps:
       - name: ninja
@@ -420,13 +540,13 @@ jobs:
       - name: dawn
         run: |
           git clone --depth 1 https://dawn.googlesource.com/dawn dawn
-          mkdir dist-debug dist-release
+          mkdir dist-debug
           cd dawn
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
-          mkdir build-debug build-release
+          mkdir build-debug
 
-      - name: Building - Debug
+      - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
           cc_wrapper="sccache"
@@ -472,7 +592,41 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Building - Release
+      - name: Create archive
+        run: |
+          brew install p7zip
+          mkdir dist
+          7z a dist/macos-x86_64-debug.zip $(pwd)/dist-debug/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          name: dist-macos-x86_64-debug
+
+  macos-x86_64-release:
+    name: macos-x86_64-release
+    runs-on: macos-latest
+    steps:
+      - name: ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: depot_tools
+        uses: newkdev/setup-depot-tools@v1.0.1
+
+      - name: dawn
+        run: |
+          git clone --depth 1 https://dawn.googlesource.com/dawn dawn
+          mkdir dist-release
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync --no-history --shallow
+          mkdir build-release
+
+      - name: Building
         run: |
           cat << EOF >> build-release/args.gn
           cc_wrapper="sccache"
@@ -520,26 +674,29 @@ jobs:
         env:
           SCCACHE_GHA_ENABLED: "true"
 
-      - name: Create archives
+      - name: Create archive
         run: |
-          sudo apt install p7zip-full
+          brew install p7zip
           mkdir dist
-          7z a dist/macos-x86_64-debug.zip $(pwd)/dist-debug/*
           7z a dist/macos-x86_64-release.zip $(pwd)/dist-release/*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: dist
-          name: dist-macos-x86_64
+          name: dist-macos-x86_64-release
 
   publish:
     name: Publish Github release
     needs:
-      - linux-x86_64
-      - linux-aarch64
-      - macos-aarch64
-      - macos-x86_64
+      - linux-x86_64-debug
+      - linux-x86_64-release
+      - linux-aarch64-debug
+      - linux-aarch64-release
+      - macos-aarch64-debug
+      - macos-aarch64-release
+      - macos-x86_64-debug
+      - macos-x86_64-release
     runs-on: ubuntu-latest
     if: success()
     steps:
@@ -547,25 +704,45 @@ jobs:
         run: |
           echo "RELEASE_VERSION=$(date '+%Y%m%d')" >> $GITHUB_ENV
         shell: bash
-      - name: Download assets - linux-x86_64
+      - name: Download assets - linux-x86_64-debug
         uses: actions/download-artifact@v4
         with:
-          name: dist-linux-x86_64
+          name: dist-linux-x86_64-debug
           path: dist
-      - name: Download assets - linux-aarch64
+      - name: Download assets - linux-x86_64-release
         uses: actions/download-artifact@v4
         with:
-          name: dist-linux-aarch64
+          name: dist-linux-x86_64-release
           path: dist
-      - name: Download assets - macos-aarch64
+      - name: Download assets - linux-aarch64-debug
         uses: actions/download-artifact@v4
         with:
-          name: dist-macos-aarch64
+          name: dist-linux-aarch64-debug
           path: dist
-      - name: Download assets - macos-x86_64
+      - name: Download assets - linux-aarch64-release
         uses: actions/download-artifact@v4
         with:
-          name: dist-macos-x86_64
+          name: dist-linux-aarch64-release
+          path: dist
+      - name: Download assets - macos-aarch64-debug
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-aarch64-debug
+          path: dist
+      - name: Download assets - macos-aarch64-release
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-aarch64-release
+          path: dist
+      - name: Download assets - macos-x86_64-debug
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-x86_64-debug
+          path: dist
+      - name: Download assets - macos-x86_64-release
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-macos-x86_64-release
           path: dist
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
