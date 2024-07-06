@@ -21,11 +21,6 @@ jobs:
           sudo apt update
           sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
-      - name: clang
-        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
-        with:
-          version: "14"
-
       - name: ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -47,8 +42,6 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=true
           target_cpu="x64"
 
@@ -68,10 +61,12 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
-          gn gen build-debug --clang_base_path="$LLVM_PATH"
+          gn gen build-debug
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
@@ -107,11 +102,6 @@ jobs:
           sudo apt update
           sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
-      - name: clang
-        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
-        with:
-          version: "14"
-
       - name: ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -133,11 +123,11 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-release/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=false
           is_official_build=true
           chrome_pgo_phase=0
+          use_icf=true
+          enable_dsyms=false
           target_cpu="x64"
 
           dawn_use_wayland=true
@@ -156,10 +146,12 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
-          gn gen build-release --clang_base_path="$LLVM_PATH"
+          gn gen build-release
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
@@ -195,11 +187,6 @@ jobs:
           sudo apt update
           sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
-      - name: clang
-        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
-        with:
-          version: "14"
-
       - name: ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -222,14 +209,11 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=true
           target_cpu="arm64"
 
           dawn_use_wayland=true
           dawn_use_x11=true
-
           dawn_enable_vulkan=true
           dawn_enable_null=false
           dawn_enable_metal=false
@@ -243,10 +227,12 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
-          gn gen build-debug --clang_base_path="$LLVM_PATH"
+          gn gen build-debug
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
@@ -282,11 +268,6 @@ jobs:
           sudo apt update
           sudo apt install libgl-dev libx11-xcb-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev wayland-protocols libwayland-dev libxkbcommon-dev libtool-bin
 
-      - name: clang
-        uses: KyleMayes/install-llvm-action@be40c5af3a4adc3e4a03199995ab73aa37536712
-        with:
-          version: "14"
-
       - name: ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
@@ -309,11 +290,11 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-release/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=false
           is_official_build=true
           chrome_pgo_phase=0
+          use_icf=true
+          enable_dsyms=false
           target_cpu="arm64"
 
           dawn_use_wayland=true
@@ -332,10 +313,12 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
-          gn gen build-release --clang_base_path="$LLVM_PATH"
+          gn gen build-release
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
@@ -387,14 +370,13 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=true
+          target_cpu="arm64"
+
           use_system_xcode=true
           mac_deployment_target="12.0"
           mac_min_system_version="12.0"
           mac_sdk_min="12.0"
-          target_cpu="arm64"
 
           dawn_enable_vulkan=false
           dawn_enable_null=false
@@ -411,6 +393,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
@@ -466,11 +450,13 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-release/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=false
           is_official_build=true
           chrome_pgo_phase=0
+          use_icf=true
+          enable_dsyms=false
+          use_thin_lto=false
+
           use_system_xcode=true
           mac_deployment_target="12.0"
           mac_min_system_version="12.0"
@@ -492,6 +478,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
@@ -547,14 +535,13 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=true
+          target_cpu="x64"
+
           use_system_xcode=true
           mac_deployment_target="12.0"
           mac_min_system_version="12.0"
           mac_sdk_min="12.0"
-          target_cpu="x64"
 
           dawn_enable_vulkan=false
           dawn_enable_null=false
@@ -571,6 +558,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
@@ -626,16 +615,18 @@ jobs:
       - name: Building
         run: |
           cat << EOF >> build-release/args.gn
-          cc_wrapper="sccache"
-          dawn_complete_static_libs=true
           is_debug=false
           is_official_build=true
           chrome_pgo_phase=0
+          use_icf=true
+          enable_dsyms=false
+          use_thin_lto=false
+          target_cpu="x64"
+
           use_system_xcode=true
           mac_deployment_target="12.0"
           mac_min_system_version="12.0"
           mac_sdk_min="12.0"
-          target_cpu="x64"
 
           dawn_enable_vulkan=false
           dawn_enable_null=false
@@ -652,6 +643,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          cc_wrapper="sccache"
+          dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
