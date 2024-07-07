@@ -69,10 +69,11 @@ jobs:
           gn gen build-debug
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
+          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
+          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -154,10 +155,11 @@ jobs:
           gn gen build-release
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
+          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
+          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -235,10 +237,11 @@ jobs:
           gn gen build-debug
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
+          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-debug/gen/lib/libdawn.a
+          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -321,10 +324,11 @@ jobs:
           gn gen build-release
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
+          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX clang -static -o build-release/gen/lib/libdawn.a
+          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -366,6 +370,7 @@ jobs:
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
           mkdir build-debug
+          brew install libtool
 
       - name: Building
         run: |
@@ -402,10 +407,11 @@ jobs:
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
+          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
+          ls build-debug/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -446,6 +452,7 @@ jobs:
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
           mkdir build-release
+          brew install libtool
 
       - name: Building
         run: |
@@ -455,7 +462,7 @@ jobs:
           chrome_pgo_phase=0
           use_icf=true
           enable_dsyms=false
-          use_thin_lto=false
+          use_thin_lto=true
 
           use_system_xcode=true
           mac_deployment_target="12.0"
@@ -487,10 +494,11 @@ jobs:
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
+          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
+          ls build-release/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -531,6 +539,7 @@ jobs:
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
           mkdir build-debug
+          brew install libtool
 
       - name: Building
         run: |
@@ -567,10 +576,11 @@ jobs:
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
           autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-debug/gen/lib
+          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
           cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool -static -o build-debug/gen/lib/libdawn.a
+          ls build-debug/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -611,6 +621,7 @@ jobs:
           cp scripts/standalone.gclient .gclient
           gclient sync --no-history --shallow
           mkdir build-release
+          brew install libtool
 
       - name: Building
         run: |
@@ -620,7 +631,7 @@ jobs:
           chrome_pgo_phase=0
           use_icf=true
           enable_dsyms=false
-          use_thin_lto=false
+          use_thin_lto=true
           target_cpu="x64"
 
           use_system_xcode=true
@@ -652,10 +663,11 @@ jobs:
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
           autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
           mkdir build-release/gen/lib
+          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
           cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool -static -o build-release/gen/lib/libdawn.a
+          ls build-release/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
