@@ -39,6 +39,7 @@ jobs:
           gclient sync --no-history --shallow
           mkdir build-debug
 
+
       - name: Building
         run: |
           cat << EOF >> build-debug/args.gn
@@ -61,19 +62,24 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
           gn gen build-debug
-          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
-          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
-          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
+          cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
+          cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -147,19 +153,25 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          is_cfi=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
           gn gen build-release
-          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
-          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
-          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
-          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
-          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
+          cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
+          cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -229,19 +241,24 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
           gn gen build-debug
-          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
-          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
-          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
+          cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
+          cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -316,19 +333,24 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
           use_allocator_shim=false
           EOF
           gn gen build-release
-          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
-          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
-          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
-          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
-          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs libtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
+          cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
+          cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -398,6 +420,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
@@ -405,13 +429,15 @@ jobs:
           EOF
           gn gen build-debug
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
-          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
-          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
-          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
+          cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
+          cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -462,7 +488,6 @@ jobs:
           chrome_pgo_phase=0
           use_icf=true
           enable_dsyms=false
-          use_thin_lto=true
 
           use_system_xcode=true
           mac_deployment_target="12.0"
@@ -485,6 +510,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
@@ -492,13 +519,15 @@ jobs:
           EOF
           gn gen build-release
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
-          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
-          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
-          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
-          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
-          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
+          cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
+          cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
@@ -567,6 +596,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
@@ -574,13 +605,15 @@ jobs:
           EOF
           gn gen build-debug
           find $(pwd)/build-debug -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
-          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static
+          autoninja -C build-debug libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
-          find build-debug/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-debug/gen/lib/libpartition_alloc.a
-          cp build-debug/obj/src/dawn/native/libwebgpu_dawn.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/native/libdawn_native_static.a build-debug/gen/lib
-          cp build-debug/obj/src/dawn/platform/libdawn_platform_static.a build-debug/gen/lib
-          ls build-debug/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-debug/gen/lib/libdawn.a
+          cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
+          cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
+          cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
           cp -r build-debug/gen/include ../dist-debug
           cp -r build-debug/gen/lib ../dist-debug
           rm -rf ../dist-debug/include/dawn/wire
@@ -631,7 +664,6 @@ jobs:
           chrome_pgo_phase=0
           use_icf=true
           enable_dsyms=false
-          use_thin_lto=true
           target_cpu="x64"
 
           use_system_xcode=true
@@ -654,6 +686,8 @@ jobs:
           tint_build_ir_binary=false
 
           is_clang=true
+          is_component_build=false
+          use_thin_lto=false
           cc_wrapper="sccache"
           dawn_complete_static_libs=true
           use_custom_libcxx=false
@@ -661,13 +695,15 @@ jobs:
           EOF
           gn gen build-release
           find $(pwd)/build-release -type f -name '*.ninja' -exec sed -i'bk' 's/arflags = -T/arflags = /g' "{}" \;
-          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static
+          autoninja -C build-release libs webgpu_dawn_static src/dawn/platform:static \
+              third_party/partition_alloc/src/partition_alloc:allocator_base \
+              third_party/partition_alloc/src/partition_alloc:allocator_core \
+              third_party/partition_alloc/src/partition_alloc:allocator_shim \
+              third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
-          find build-release/obj/third_party/partition_alloc/src/partition_alloc/ -type f -name '*.o' | xargs ar rcs build-release/gen/lib/libpartition_alloc.a
-          cp build-release/obj/src/dawn/native/libwebgpu_dawn.a build-release/gen/lib
-          cp build-release/obj/src/dawn/native/libdawn_native_static.a build-release/gen/lib
-          cp build-release/obj/src/dawn/platform/libdawn_platform_static.a build-release/gen/lib
-          ls build-release/gen/lib/* | xargs glibtool --mode=link --tag=CXX cc -static -o build-release/gen/lib/libdawn.a
+          cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
+          cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
+          cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
           cp -r build-release/gen/include ../dist-release
           cp -r build-release/gen/lib ../dist-release
           rm -rf ../dist-release/include/dawn/wire
