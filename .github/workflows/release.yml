@@ -86,6 +86,7 @@ jobs:
               build-debug/obj/buildtools/third_party/libc++abi/libc++abi.a \
               build-debug/obj/buildtools/third_party/libc++abi/libc++abi/*.o
           mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/common/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
           cp build-debug/obj/buildtools/third_party/libc++/libc++.a build-debug/gen/lib
@@ -189,6 +190,7 @@ jobs:
               build-release/obj/buildtools/third_party/libc++abi/libc++abi.a \
               build-release/obj/buildtools/third_party/libc++abi/libc++abi/*.o
           mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/common/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
           cp build-release/obj/buildtools/third_party/libc++/libc++.a build-release/gen/lib
@@ -287,6 +289,7 @@ jobs:
               build-debug/obj/buildtools/third_party/libc++abi/libc++abi.a \
               build-debug/obj/buildtools/third_party/libc++abi/libc++abi/*.o
           mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/common/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
           cp build-debug/obj/buildtools/third_party/libc++/libc++.a build-debug/gen/lib
@@ -390,6 +393,7 @@ jobs:
               build-release/obj/buildtools/third_party/libc++abi/libc++abi.a \
               build-release/obj/buildtools/third_party/libc++abi/libc++abi/*.o
           mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/common/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
           cp build-release/obj/buildtools/third_party/libc++/libc++.a build-release/gen/lib
@@ -480,6 +484,7 @@ jobs:
               third_party/partition_alloc/src/partition_alloc:allocator_shim \
               third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/common/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
           cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
@@ -571,6 +576,7 @@ jobs:
               third_party/partition_alloc/src/partition_alloc:allocator_shim \
               third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/common/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
           cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
@@ -658,6 +664,7 @@ jobs:
               third_party/partition_alloc/src/partition_alloc:allocator_shim \
               third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-debug/gen/lib
+          cp build-debug/obj/src/dawn/common/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/native/*.a build-debug/gen/lib
           cp build-debug/obj/src/dawn/platform/*.a build-debug/gen/lib
           cp build-debug/obj/third_party/partition_alloc/src/partition_alloc/*.a build-debug/gen/lib
@@ -749,6 +756,7 @@ jobs:
               third_party/partition_alloc/src/partition_alloc:allocator_shim \
               third_party/partition_alloc/src/partition_alloc:raw_ptr
           mkdir build-release/gen/lib
+          cp build-release/obj/src/dawn/common/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/native/*.a build-release/gen/lib
           cp build-release/obj/src/dawn/platform/*.a build-release/gen/lib
           cp build-release/obj/third_party/partition_alloc/src/partition_alloc/*.a build-release/gen/lib
