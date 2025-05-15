@@ -25,7 +25,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -125,7 +127,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -229,7 +233,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -328,7 +334,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -427,7 +435,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -515,7 +525,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -607,7 +619,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
@@ -695,7 +709,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
+        uses: mozilla-actions/sccache-action@v0.0.9
+        with:
+          version: "v0.10.0"
 
       - name: depot_tools
         uses: newkdev/setup-depot-tools@v1.0.1
